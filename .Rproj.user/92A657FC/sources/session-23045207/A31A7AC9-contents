@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(gridExtra)
 
 selected_data <- select(full.data, 3:22, 26, 27)
 
@@ -39,6 +40,15 @@ Mg25_scatter_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011, color 
   labs(x = "2010", y = "2011", color = "Genotype") +
   ggtitle("Scatter Plot of Mg25 (2010) vs Mg25 (2011) by Genotype")
 
+element_df <- element_year_dfs[["Mg25"]]  # Replace "B11" with the desired element name
+
+# Create scatter plot
+Mg25_scatter_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011)) +
+  geom_point(size = 3) +
+  labs(x = "2010", y = "2011") +
+  ggtitle("Mg25") +
+  theme(plot.title = element_text(hjust = 0.5))
+print(Mg25_scatter_plot)
 # Save the scatter plot to a file (e.g., "scatter_plot.png")
 ggsave("Mg25_scatter_plot.png", plot = Mg25_scatter_plot, width = 8, height = 6, units = "in", dpi = 300)
 
@@ -73,3 +83,48 @@ scatter_plot <- ggplot(combined_df, aes(x = X2010, y = X2011, color = Genotype))
 
 # Print or display the scatter plot
 print(scatter_plot)
+
+
+
+element_df <- element_year_dfs[["Mg25"]] 
+Mg25_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011)) +
+  geom_point(size = 3) +
+  labs(x = "2010", y = "2011") +
+  ggtitle("Mg25") +
+  theme(plot.title = element_text(hjust = 0.5), panel.background = element_rect(fill = "white"), panel.border = element_rect(color = "black", fill = NA, linewidth = 1), axis.text = element_text(color = "black", size = 12), axis.title = element_text(color = "black", size = 14))
+element_df <- element_year_dfs[["Cd111"]]
+Cd111_plot <- ggplot(element_df, aes(x = Cd111_2010, y = Cd111_2011)) +
+  geom_point(size = 3) +
+  labs(x = "2010", y = "2011") +
+  ggtitle("Cd111") +
+  theme(plot.title = element_text(hjust = 0.5), panel.background = element_rect(fill = "white"), panel.border = element_rect(color = "black", fill = NA, linewidth = 1), axis.text = element_text(color = "black", size = 12), axis.title = element_text(color = "black", size = 14))
+Mg25_Cd111_combined_plot <- grid.arrange(Mg25_plot, Cd111_plot, ncol = 2)
+
+
+
+scatter_plots <- list()
+
+# Loop through each element data frame and create a scatter plot
+for (name in names(element_year_dfs)) {
+  element_df <- element_year_dfs[[name]]
+}
+  
+  # Create scatter plot for the current element
+  scatter_plot <- ggplot(element_df, aes(x = paste0(element_name, "_2010"), y = paste0(element_name, "_2011"))) +
+    geom_point(size = 3) +
+    labs(x = paste0(element_name, " (2010)"), y = paste0(element_name, " (2011)")) +
+    ggtitle(paste("Scatter Plot of", element_name)) +
+    theme(plot.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill = "white"),
+          plot.background = element_rect(fill = "white"),
+          panel.border = element_rect(color = "black", fill = NA, size = 1),
+          axis.text = element_text(size = 12),
+          axis.title = element_text(size = 14))
+  
+  # Store the scatter plot in the list
+  scatter_plots[[element_name]] <- scatter_plot
+}
+
+# Arrange all scatter plots using grid.arrange
+scatter_plots_grob <- lapply(scatter_plots, ggplotGrob)
+grid.arrange(grobs = scatter_plots_grob, ncol = 4)
