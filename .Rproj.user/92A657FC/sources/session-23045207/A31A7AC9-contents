@@ -1,0 +1,48 @@
+library(dplyr)
+library(ggplot2)
+
+selected_data <- select(full.data, 3:22, 26, 27)
+
+head(selected_data)
+
+mean_values <- selected_data %>%
+  group_by(Genotype, Year) %>%
+  summarise(across(where(is.numeric), mean, na.rm = TRUE))
+
+genotypes_to_remove <- c("IL14H", "HP301", "P39")
+final_values <- mean_values %>% 
+  filter(!Genotype %in% genotypes_to_remove)
+
+elemental_columns <- colnames(final_values)[3:length(final_values)]
+
+element_year_dfs <- list()
+
+for (element in elemental_columns) {
+  # Data frame for 2010 for the current element
+  element_2010 <- final_values[final_values$Year == 2010, c("Genotype", element)]
+  
+  # Data frame for 2011 for the current element
+  element_2011 <- final_values[final_values$Year == 2011, c("Genotype", element)]
+  
+  # Merge the data frames by Genotype
+  merged_df <- merge(element_2010, element_2011, by = "Genotype", suffixes = c("_2010", "_2011"))
+  
+  # Store the merged data frame in the list
+  element_year_dfs[[element]] <- merged_df
+}
+
+element_df <- element_year_dfs[["Mg25"]]  # Replace "B11" with the desired element name
+
+# Create scatter plot
+ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011, color = Genotype)) +
+  geom_point() +
+  labs(x = "2010", y = "2011", color = "Genotype") +
+  ggtitle("Scatter Plot of Mg25 (2010) vs Mg25 (2011) by Genotype")
+
+element_df <- element_year_dfs[["Cd111"]]  # Replace "B11" with the desired element name
+
+# Create scatter plot
+ggplot(element_df, aes(x = Cd111_2010, y = Cd111_2011, color = Genotype)) +
+  geom_point() +
+  labs(x = "2010", y = "2011", color = "Genotype") +
+  ggtitle("Scatter Plot of Cd111 (2010) vs Cd111 (2011) by Genotype")

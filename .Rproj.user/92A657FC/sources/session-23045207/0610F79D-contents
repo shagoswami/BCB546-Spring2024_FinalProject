@@ -1,0 +1,50 @@
+---
+title: "Final_Project_Figure1"
+author: "Russell Greene"
+date: "2024-04-29"
+output: html_document
+---
+
+# Final Project - Figure 1
+
+Figure 1 is a scatter plot of the amount of Mg25 and Cd111 for 24 of the genotypes between the 2010 and 2011 harvest years.
+
+## Load Packages
+
+```{r load packages}
+library(dplyr)
+library(ggplot2)
+```
+
+## Data Manipulation
+
+```{r select data}
+
+selected_data <- select(full.data, 3:22, 26, 27) # Select only the data necessary to generate the scatter plots
+head(selected_data)
+```
+
+```{r mean data}
+
+mean_values <- selected_data %>% # Create new data frame with mean values from all the data in the selected data frame 
+  group_by(Genotype, Year) %>% # Group the selected data by genotype and year
+  summarise(across(where(is.numeric), mean, na.rm = TRUE)) # Calculate the mean values for each element based on the genotype and year
+```
+
+```{r remove genotypes}
+genotypes_to_remove <- c("IL14H", "HP301", "P39") # Create a vector of genotypes to remove
+final_values <- mean_values %>% # Assign filtered data to a new data frame
+  filter(!Genotype %in% genotypes_to_remove) # Filter mean_values data frame by every genotype that is not in the genotypes_to_remove vector
+
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
