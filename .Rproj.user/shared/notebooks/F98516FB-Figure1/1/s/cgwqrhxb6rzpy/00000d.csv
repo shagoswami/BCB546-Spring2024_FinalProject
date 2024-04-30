@@ -1,7 +1,0 @@
-"0","element_df <- element_year_dfs[[""Mg25""]] "
-"0","Mg25_scatter_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011)) +"
-"0","  geom_point(size = 3) +"
-"0","  labs(x = ""2010"", y = ""2011"") +"
-"0","  ggtitle(""Mg25"") +"
-"0","  theme(plot.title = element_text(hjust = 0.5), panel.background = element_rect(fill = ""white""), panel.border = element_rect(color = ""black"", fill = NA, linewidth = 1), axis.text = element_text(color = ""black"", size = 12), axis.title = element_text(color = ""black"", size = 14))"
-"0","print(Mg25_scatter_plot)"

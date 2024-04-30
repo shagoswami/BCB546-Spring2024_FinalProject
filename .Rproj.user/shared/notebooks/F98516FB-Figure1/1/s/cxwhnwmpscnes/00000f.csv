@@ -1,2 +1,0 @@
-"0","selected_data <- select(full.data, 3:22, 26, 27) # Select only the data necessary to generate the scatter plots"
-"0","head(selected_data)"
