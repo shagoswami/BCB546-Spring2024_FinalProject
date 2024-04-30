@@ -1,4 +1,5 @@
-setwd("C:/Users/Kiarak/Desktop/") #change this
+getwd()
+setwd("/Users/russellgreene/BCB546_Final_Project/Data/") #change this
 source('final_functions.R')
 
 #read in 2010 data

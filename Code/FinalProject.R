@@ -81,10 +81,12 @@ scatter_plot <- ggplot(combined_df, aes(x = X2010, y = X2011, color = Genotype))
   facet_wrap(~ Element, scales = "free") +
   ggtitle("Scatter Plot of 2010 vs 2011 by Element and Genotype")
 
-# Print or display the scatter plot
+
 print(scatter_plot)
 
-
+for (i in names(element_year_dfs)) {
+  i_df <- element_year_dfs[[i]] 
+}
 
 element_df <- element_year_dfs[["Mg25"]] 
 Mg25_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011)) +
@@ -128,3 +130,36 @@ for (name in names(element_year_dfs)) {
 # Arrange all scatter plots using grid.arrange
 scatter_plots_grob <- lapply(scatter_plots, ggplotGrob)
 grid.arrange(grobs = scatter_plots_grob, ncol = 4)
+
+scatter_plots <- list()
+
+# Loop through each element in the data frame
+for (element_name in names(element_year_dfs)) {
+  # Get the data frame for the current element
+  element_df <- element_year_dfs[[element_name]]
+  
+  # Extract column names for 2010 and 2011
+  col_2010 <- paste0(element_name, "_2010")
+  col_2011 <- paste0(element_name, "_2011")
+  
+  # Create a scatter plot for the current element
+  plot <- ggplot(element_df, aes(x = !!sym(col_2010), y = !!sym(col_2011))) +
+    geom_point(size = 1) +
+    labs(x = "2010", y = "2011") +
+    ggtitle(element_name) +
+    theme(plot.title = element_text(hjust = 0.5),
+          panel.background = element_rect(fill = "white"),
+          panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+          axis.text = element_text(color = "black", size = 12),
+          axis.title = element_text(color = "black", size = 14))
+  
+  # Store the plot in the list
+  scatter_plots[[element_name]] <- plot
+}
+
+# Convert the list of plots to a list of grobs (graphical objects)
+plots_grobs <- lapply(scatter_plots, ggplotGrob)
+
+# Arrange all plots in a matrix using grid.arrange
+all_elements_plot <- grid.arrange(grobs = plots_grobs, ncol = 4)
+ggsave("all_elements_plot.png", plot = all_elements_plot, width = 12, height = 10, units = "in", dpi = 300)
