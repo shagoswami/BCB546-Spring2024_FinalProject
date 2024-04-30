@@ -1,4 +1,0 @@
-"0","genotypes_to_remove <- c(""IL14H"", ""HP301"", ""P39"") # Create a vector of genotypes to remove"
-"0","final_values <- mean_values %>% # Assign filtered data to a new data frame"
-"0","  filter(!Genotype %in% genotypes_to_remove) # Filter mean_values data frame by every genotype that is not in the genotypes_to_remove vector"
-"0",""
