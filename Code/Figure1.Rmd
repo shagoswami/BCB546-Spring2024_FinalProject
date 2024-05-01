@@ -7,7 +7,7 @@ output: html_document
 
 # Final Project - Figure 1
 
-Figure 1 is a scatter plot of the amount of Mg25 and Cd111 for 24 of the genotypes between the 2010 and 2011 sampling years.
+Figure 1 is a scatter plot of the amounts of two (Mg25 and Cd111) of the twenty elements in 21 different maize genotypes between two sampling years (2010 and 2011). 
 
 ## Load Packages
 
@@ -25,7 +25,6 @@ This code will select only the elemental data, Genotype, and Year from the `full
 
 ```{r select data}
 selected_data <- select(full.data, 3:22, 26, 27) # Select only the data necessary to generate the scatter plots
-head(selected_data)
 ```
 
 ### Calculate Mean
@@ -59,18 +58,16 @@ elemental_columns <- colnames(final_values)[3:length(final_values)] # Create a v
 element_year_dfs <- list() # Create an empty list to store all the elemental data frames
 
 for (element in elemental_columns) { # Loop through the elements in the elemental_columns vector
-  element_2010 <- final_values[final_values$Year == 2010, c("Genotype", element)] # 
-  element_2011 <- final_values[final_values$Year == 2011, c("Genotype", element)]
-  merged_df <- merge(element_2010, element_2011, by = "Genotype", suffixes = c("_2010", "_2011"))
-  element_year_dfs[[element]] <- merged_df
+  element_2010 <- final_values[final_values$Year == 2010, c("Genotype", element)] # Create a data frame for all the 2010 data
+  element_2011 <- final_values[final_values$Year == 2011, c("Genotype", element)] # Create a data frame for all the 2011 data
+  merged_df <- merge(element_2010, element_2011, by = "Genotype", suffixes = c("_2010", "_2011")) # Merge the 2010 and 2011 data frames
+  element_year_dfs[[element]] <- merged_df # Store the merged data frame to the empty list
 }
 ```
 
 ## Plotting
 
 ### Mg25 Scatter Plot
-
-Now that the data is formatted properly, a scatter plot of the genotype data for each element can be plotted. Figure 1 of the paper looks
 
 ```{r Mg25 plot}
 element_df <- element_year_dfs[["Mg25"]] # Extract the Mg25 data frame from the list of elements data frames
@@ -111,37 +108,30 @@ ggsave("Figure1.png", plot = Mg25_Cd111_combined_plot, width = 8, height = 6, un
 
 ### All Elements Plot
 
-```{r all elements}
-scatter_plots <- list()
+In the paper, the authors mention 16 of the 20 elements had a significant correlation between the two sampling years, so I thought it would be interesting to create a matrix of all 20 elements to visualize the significantly correlated samples. 
 
-# Loop through each element in the data frame
-for (element_name in names(element_year_dfs)) {
-  # Get the data frame for the current element
-  element_df <- element_year_dfs[[element_name]]
+```{r all elements}
+scatter_plots <- list() # Create an empty list to store the scatter plots
+for (element_name in names(element_year_dfs)) { # Loop through the data frame and extract all elements
+  element_df <- element_year_dfs[[element_name]] # Create a new data frame for the element
+  col_2010 <- paste0(element_name, "_2010") 
+  col_2011 <- paste0(element_name, "_2011") # Extract column names for 2010 and 2011
   
-  # Extract column names for 2010 and 2011
-  col_2010 <- paste0(element_name, "_2010")
-  col_2011 <- paste0(element_name, "_2011")
-  
-  # Create a scatter plot for the current element
-  plot <- ggplot(element_df, aes(x = !!sym(col_2010), y = !!sym(col_2011))) +
-    geom_point(size = 1) +
-    labs(x = "2010", y = "2011") +
-    ggtitle(element_name) +
-    theme(plot.title = element_text(hjust = 0.5),
-          panel.background = element_rect(fill = "white"),
-          panel.border = element_rect(color = "black", fill = NA, linewidth = 1),
+  plot <- ggplot(element_df, aes(x = !!sym(col_2010), y = !!sym(col_2011))) + # Create a scatter plot for the element
+    geom_point(size = 1) + # Set data point size
+    labs(x = "2010", y = "2011") + # Set axes labels
+    ggtitle(element_name) + # Set title of the plot
+    theme(plot.title = element_text(hjust = 0.5), # Center the plot title
+          panel.background = element_rect(fill = "white"), # Set the background color 
+          panel.border = element_rect(color = "black", fill = NA, linewidth = 1), # Add a border to the plot
           axis.text = element_text(color = "black", size = 12),
-          axis.title = element_text(color = "black", size = 14))
+          axis.title = element_text(color = "black", size = 14)) # Adjust the text of the axes and title
   
-  # Store the plot in the list
-  scatter_plots[[element_name]] <- plot
+  scatter_plots[[element_name]] <- plot # Store the plot in the created list
 }
 
-# Convert the list of plots to a list of grobs (graphical objects)
-plots_grobs <- lapply(scatter_plots, ggplotGrob)
+plots_grobs <- lapply(scatter_plots, ggplotGrob) # Turn the plots into graphical objects (Grobs)
 
-# Arrange all plots in a matrix using grid.arrange
 all_elements_plot <- grid.arrange(grobs = plots_grobs, ncol = 4)
-ggsave("all_elements_plot.png", plot = all_elements_plot, width = 12, height = 10, units = "in", dpi = 300)
+ggsave("all_elements_plot.png", plot = all_elements_plot, width = 12, height = 10, units = "in", dpi = 300) # Create a matrix of the scatter plots for each element
 ```
