@@ -3,7 +3,7 @@
 setwd("C:/Users/kiarak/Desktop/Final")
 
 #### READ IN the data files and label genotypes as parental lines - QTL needs segregating pop. I don't care about the other values and will make them blank
-
+```{r}
 sdata <- read.table(file = "cornB73_IL14H.csv" , sep = ",", header = TRUE,stringsAsFactors = FALSE, na.strings = NA)   
 start.col <- 7
 lag.col <- start.col -1
@@ -14,9 +14,10 @@ blank.sd <- apply(sdata[sdata$Line == 'blank',start.col:ncol(sdata)],2,sd)
 for(i in start.col:ncol(sdata)){
   sdata[,i] <- sdata[,i] - blank.med[i-lag.col]
 }
-
+```
 
 #### remove negative values and replace with zero values
+```{r}
 sdata <- sdata[sdata$Line != 'blank',]
 zerep <- function(x){  
   if(is.na(x) ==TRUE){return(x)}
@@ -29,9 +30,10 @@ zerep <- function(x){
 sdata[,start.col:ncol(sdata)] <- apply(sdata[,start.col:ncol(sdata)], c(1,2), zerep)
 e.names <- names(sdata) #element and line values
 el.names <- e.names[start.col:ncol(sdata)] #element columns only
-
+```
 
 #### outlier processing -- adapted function in final_functions to fit this data. using IQR instead of MADS for qtl analysis
+```{r}
 x <- rep(1, nrow(sdata))
 iqrout <- 3
 numel <- ncol(sdata)
@@ -49,7 +51,7 @@ invisible(lapply(split(seq(nrow(sdata)), x), function(.ind){
 }
 ))
 sum(is.na(sdata))
-
+```
 
 
 ### now to generate a map for QTL analysis
