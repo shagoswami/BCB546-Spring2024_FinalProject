@@ -56,7 +56,7 @@ sum(is.na(sdata))
 
 ### now to generate a map for QTL analysis
 
-
+```{r}
 load("Corn_genotypes.RData") #R Datafile sent by Baxter with snp info
 
 map.data <- sdata[sdata$Line != p1 & sdata$Line != p2,c(1,start.col:ncol(sdata))]
@@ -65,19 +65,23 @@ map.data <- sdata[sdata$Line != p1 & sdata$Line != p2,c(1,start.col:ncol(sdata))
 
 pheno.data <- aggregate(map.data[,2:ncol(map.data)],list(map.data$row),mean)
 colnames(pheno.data)[1] <- 'row'
-
+```
 #### remove Al, Si, As, Se -- as stated in paper -- isobaric interferences (?) so they removed these elements
+```{r}
 pheno.data <- pheno.data[,c(-5,-6,-17,-18)]
-
+```
 #### i'm only looking at chr 1 for the final and don't want all of the information so creating a file with reduced genotypic information
+```{r}
 mark.data <- read.table(file = "Z011_reducedgenos.csv", sep =  ",",header = TRUE)
 
 linecon <- rowinfo$line.names[rowinfo$ENTITYID %in% pheno.data$row]
-
+```
 #### get a common set of markers and lines
+```{r}
 rmark.data <- mark.data[rownames(mark.data) %in% linecon,]
-
+```
 #### used help from Slack Exchange
+```{r}
 linecon2 <- rowinfo$ENTITYID[rowinfo$line.names %in% rownames(rmark.data)]
 rgenodata <- pheno.data[pheno.data$row %in% linecon2,]
 rgenodata <- rgenodata[order(rgenodata$row),]
@@ -107,6 +111,7 @@ write.table(alljoin, file = "IL14H_finalmap.csv",sep = ",",quote = FALSE,col.nam
 colnames(rgenodata) <- paste("*",colnames(rgenodata),sep="")
 
 write.table(t(rgenodata[,2:ncol(rgenodata)]), file = "IL14H_finalpheno.csv",sep = "\t",col.names = FALSE,quote = FALSE)
+```
 
 ## These two files need to be combined for qtl analysis 
 # I did this manually - using marker positions from https://repository.lib.ncsu.edu/server/api/core/bitstreams/5e042796-e939-4fff-80a5-2bd87f41b174/content for Chr. 1
@@ -114,33 +119,43 @@ write.table(t(rgenodata[,2:ncol(rgenodata)]), file = "IL14H_finalpheno.csv",sep 
 # qtl analysis
 
 ## load libraries
+```{r}
 library(lme4)
 library(qtl)
 library(qtlDesign)
-
+```
 ## Load genotype data
+```{r}
 geno <- read.cross("csv", file = "test3.csv", na.strings=c('NA'), genotypes = c("-1", "0", "1", "2"))
 geno <- jittermap(geno) #because some markers are overlapping in positions
 summary(geno)
 #plot(geno)
 #View(geno)
+```
+### prepare the genotype data for QTL analysis using r/qtl formatting
+```{r}
 geno <- calc.genoprob(geno, step=0, off.end=0.0, error.prob=1.0e-4,stepwidth = "fixed", map.function="kosambi")
 
 geno_cross <- sim.geno(geno,  n.draws=32, step=0, off.end=0.0, error.prob=1.0e-4, stepwidth = "fixed", map.function="kosambi")
-
+```
+### perform QTL scan
+```{r}
 scan.cim = cim(geno_cross, pheno.col=5, map.function="kosambi")
 
 scan.cim.perm = cim(geno_cross, pheno.col=3, map.function="kosambi", n.perm=1000)
 
 summary(scan.cim.perm)
 summary(scan.cim, threshold = 0.5) #alpha = 0.05, can set alpha to other values 
+```
 
 ### QTL scan visualization
+```{r}
 plot(scan.cim)   
 title(main="LOD scores for Chr1")
-
+```
 
 ### allele density plots - can change this based on element and marker
+```{r}
 #Plotting the QTL effect using the information from this Script
 plotPXG(geno_cross, pheno.col = 6, marker = c("PZA03457.1")) # I changed the column for Selenium and the marker based on output from previous lines of code
 title(main="QTL effect on selenium concentration - marker from my analysis")
@@ -148,28 +163,35 @@ title(main="QTL effect on selenium concentration - marker from my analysis")
 #Plotting the QTL effect using the marker information given in the paper
 plotPXG(geno_cross, pheno.col = 6, marker = c("PZA02698.3")) # I changed the column for Selenium and the marker based on output from previous lines of code
 title(main="QTL effect on selenium concentration - marker from paper")
-
+```
 
 ### I played with the values here based on reported QTL position and marker and the results from previous lines #####
 #### These are results using the map position in their paper - p = sig
+```{r}
 qtl <- makeqtl(geno_cross, chr=c(1), pos=c(161.7),what=c("prob")) #167.8 = position of marker in my file, 161.2 = their position
 fitqtl <- fitqtl(geno, pheno.col=c(6), qtl= qtl, method = "hk")
 summary(fitqtl)
-
+```
 #### These are results using the map position from this script = p = sig
+```{r}
 qtl <- makeqtl(geno_cross, chr=c(1), pos=c(162),what=c("prob")) #167.8 = position of marker in my file, 161.2 = their position
 fitqtl <- fitqtl(geno, pheno.col=c(6), qtl= qtl, method = "hk")
 summary(fitqtl)
-
+```
 #### These are the results using the map position of the marker from the thesis - 167.8 - p= NS
+```{r}
 qtl <- makeqtl(geno_cross, chr=c(1), pos=c(167.8),what=c("prob")) #167.8 = position of marker in my file, 161.2 = their position
 fitqtl <- fitqtl(geno, pheno.col=c(6), qtl= qtl, method = "hk")
 summary(fitqtl)
-
+```
 
 #### for error that figure margins are too large
-par(mar=c(0.5,0.5,0.5,0.5))
-
+##### thank you Slack Exchange
+```{r}
+par(mar=c(1,1,1,1))
+```
+#### for a list of markers with sig LOD scores
+```{r}
 lodint(results = scan.cim, chr = 1, drop = 1.8)
-
+```
 
