@@ -1,6 +1,8 @@
 ### Table 4 is output from a QTL analysis using genotypic data and the phenotypes from the elements to find associations between element concentrations and QTL. I am performing a QTL analysis for chromosome 1 using the data from the paper
+
 setwd("C:/Users/kiarak/Desktop/Final")
-#READ IN the data files and label genotypes as parental lines - QTL needs segregating pop. I don't care about the other values and will make them blank
+
+#### READ IN the data files and label genotypes as parental lines - QTL needs segregating pop. I don't care about the other values and will make them blank
 
 sdata <- read.table(file = "cornB73_IL14H.csv" , sep = ",", header = TRUE,stringsAsFactors = FALSE, na.strings = NA)   
 start.col <- 7
@@ -14,7 +16,7 @@ for(i in start.col:ncol(sdata)){
 }
 
 
-#remove negative values and replace with zero values
+#### remove negative values and replace with zero values
 sdata <- sdata[sdata$Line != 'blank',]
 zerep <- function(x){  
   if(is.na(x) ==TRUE){return(x)}
@@ -29,8 +31,7 @@ e.names <- names(sdata) #element and line values
 el.names <- e.names[start.col:ncol(sdata)] #element columns only
 
 
-######
-#outlier processing -- adapted function in final_functions to fit this data. using IQR instead of MADS for qtl analysis
+#### outlier processing -- adapted function in final_functions to fit this data. using IQR instead of MADS for qtl analysis
 x <- rep(1, nrow(sdata))
 iqrout <- 3
 numel <- ncol(sdata)
@@ -51,7 +52,7 @@ sum(is.na(sdata))
 
 
 
-####################### now to generate a map for QTL analysis
+### now to generate a map for QTL analysis
 
 
 load("Corn_genotypes.RData") #R Datafile sent by Baxter with snp info
@@ -63,18 +64,18 @@ map.data <- sdata[sdata$Line != p1 & sdata$Line != p2,c(1,start.col:ncol(sdata))
 pheno.data <- aggregate(map.data[,2:ncol(map.data)],list(map.data$row),mean)
 colnames(pheno.data)[1] <- 'row'
 
-#remove Al, Si, As, Se -- as stated in paper -- isobaric interferences (?) so they removed these elements
+#### remove Al, Si, As, Se -- as stated in paper -- isobaric interferences (?) so they removed these elements
 pheno.data <- pheno.data[,c(-5,-6,-17,-18)]
 
-#i'm only looking at chr 1 for the final and don't want all of the information so creating a file with reduced genotypic information
+#### i'm only looking at chr 1 for the final and don't want all of the information so creating a file with reduced genotypic information
 mark.data <- read.table(file = "Z011_reducedgenos.csv", sep =  ",",header = TRUE)
 
 linecon <- rowinfo$line.names[rowinfo$ENTITYID %in% pheno.data$row]
 
-#get a common set of markers and lines
+#### get a common set of markers and lines
 rmark.data <- mark.data[rownames(mark.data) %in% linecon,]
 
-#used help from Slack Exchange
+#### used help from Slack Exchange
 linecon2 <- rowinfo$ENTITYID[rowinfo$line.names %in% rownames(rmark.data)]
 rgenodata <- pheno.data[pheno.data$row %in% linecon2,]
 rgenodata <- rgenodata[order(rgenodata$row),]
@@ -105,22 +106,17 @@ colnames(rgenodata) <- paste("*",colnames(rgenodata),sep="")
 
 write.table(t(rgenodata[,2:ncol(rgenodata)]), file = "IL14H_finalpheno.csv",sep = "\t",col.names = FALSE,quote = FALSE)
 
-#These two files need to be combined for qtl analysis
+## These two files need to be combined for qtl analysis 
+# I did this manually - using marker positions from https://repository.lib.ncsu.edu/server/api/core/bitstreams/5e042796-e939-4fff-80a5-2bd87f41b174/content for Chr. 1
 
-################################
-#qtl analysis
+# qtl analysis
 
-##load libraries
+## load libraries
 library(lme4)
 library(qtl)
 library(qtlDesign)
 
-
-
-########################################################################
-
-
-# Load genotype data
+## Load genotype data
 geno <- read.cross("csv", file = "test3.csv", na.strings=c('NA'), genotypes = c("-1", "0", "1", "2"))
 geno <- jittermap(geno) #because some markers are overlapping in positions
 summary(geno)
@@ -138,11 +134,11 @@ summary(scan.cim.perm)
 summary(scan.cim, threshold = 0.5) #alpha = 0.05
 
 plot(scan.cim)          
-#allele density plots - can change this based on element and marker
+### allele density plots - can change this based on element and marker
 plotPXG(geno_cross, pheno.col = 5, marker = c("PZA02698.3")) # I changed the column for Selenium and the marker based on output from previous lines of code
 
 
-######### I played with the values here based on reported QTL position and marker and the results from previous lines #####
+### I played with the values here based on reported QTL position and marker and the results from previous lines #####
 qtl <- makeqtl(geno_cross, chr=c(1), pos=c(161.7),what=c("prob")) #167.8 = position of marker in my file, 161.2 = their position
 
 fitqtl <- fitqtl(geno, pheno.col=c(5), qtl= qtl, method = "hk")
@@ -150,7 +146,7 @@ fitqtl <- fitqtl(geno, pheno.col=c(5), qtl= qtl, method = "hk")
 summary(fitqtl)
 
 
-#for error that figure margins are too large
+#### for error that figure margins are too large
 par(mar=c(0.5,0.5,0.5,0.5))
 
 lodint(results = scan.cim, chr = 1, drop = 1.8)
