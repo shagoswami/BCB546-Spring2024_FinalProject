@@ -1,0 +1,89 @@
+---
+title: "Final_project_Figure3"
+author: "Tae-Chun Park"
+date: "2024-04-30"
+output: html_document
+---
+
+### Final project - Figure 3
+##### Load packages
+```{r}
+library(readr)
+library(readxl)
+library(ggplot2)
+library(dplyr)
+```
+
+##### Read dataset
+```{r}
+cornB73_IL14H <- read.csv("/Users/chun/Desktop/Final project/cornB73_IL14H.csv")
+```
+
+
+#### Since I couldn't fully access the information from lines selected in the paper, first, I  created boxplots to compare two different Su types by each Ca and Zn content.
+
+##### 1. Boxplot for Ca44 content by crinkled and round
+```{r}
+ggplot(cornB73_IL14H %>% filter(Su %in% c("round", "crinkled")),
+       aes(x = Su, y = Ca44, fill = Su)) +
+  geom_boxplot() +
+  labs(x = "Genotype", y = "Ca PPM", 
+       title = "Comparison of Ca44 between crinkled and round") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+* First, I did filter the data for 'crinkled' and 'round' of Su types. And then, I created a boxplot for Ca44 content by Su type
+
+
+##### 2. Boxplot for Zn66 content by crinkled and round
+```{r}
+ggplot(cornB73_IL14H %>% filter(Su %in% c("round", "crinkled")), 
+       aes(x = Su, y = Zn66, fill = Su)) +
+  geom_boxplot() +
+  labs(x = "Genotype", y = "Ca PPM", title = "Comparison of Zn66 between crinkled and round") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+* Same approach as above, just changed content from Ca44 to Zn66.
+
+#### Second, I used lines they already provided it in the dataset because I couldn't access the dataset, i didn't know the selected lines they used for figure 3. While there were 4 lines available, but three of them did not have crinkled and round, I used (B73_Il14H)S5. Then, I can compare Ca and Zn contents by different Su types.
+
+##### 3. Data filtering only select (B73_Il14H)S5 and remove 'NA'
+```{r}
+filtered_data <- cornB73_IL14H %>%
+  filter(Line == "(B73_Il14H)S5" & !is.na(Su))
+```
+
+##### 4. Shuffle the data and divide it into 7 groups randomly
+```{r}
+set.seed(123)  # for reproducibility
+num_groups <- 7
+group_assignment <- sample(1:num_groups, size = nrow(filtered_data), replace = TRUE)
+```
+
+* What I did here is that I wanted to selected samples randomly and divided into 7 groups
+
+##### 5. Add group assignments to the dataframe
+```{r}
+filtered_data$Group <- group_assignment
+```
+
+##### 6. Boxplot for each group by filtering Su type for Zn66
+```{r}
+ggplot(filtered_data, aes(x = as.factor(Group), y = Zn66, fill = Su)) +
+  geom_boxplot(position = position_dodge(width = 0.3), alpha = 0.7) + 
+  labs(x = "Group", y = "Zn66", title = "Comparison of Zn66 between crinkled and round for each group") +
+  theme_minimal()
+```
+
+* In the paper, they made boxplots by overlapping two boxes for the same lines. To do this, I used the width command to overlap the two boxes. Additionally, since overlapping boxes can make it difficult to distinguish between them, I reduced the alpha value to fade the boxes, making it easier to distinguish between them.
+
+##### 7. Boxplot for each group by filtering Su type for Ca
+```{r}
+ggplot(filtered_data, aes(x = as.factor(Group), y = Ca44, fill = Su)) +
+  geom_boxplot(position = position_dodge(width = 0.3), alpha = 0.7) + 
+  labs(x = "Group", y = "Ca44", title = "Comparison of Ca44 between crinkled and round for each group") +
+  theme_minimal()
+```
