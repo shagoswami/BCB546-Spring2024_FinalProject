@@ -19,20 +19,14 @@ elemental_columns <- colnames(final_values)[3:length(final_values)]
 element_year_dfs <- list()
 
 for (element in elemental_columns) {
-  # Data frame for 2010 for the current element
   element_2010 <- final_values[final_values$Year == 2010, c("Genotype", element)]
-  
-  # Data frame for 2011 for the current element
   element_2011 <- final_values[final_values$Year == 2011, c("Genotype", element)]
-  
-  # Merge the data frames by Genotype
   merged_df <- merge(element_2010, element_2011, by = "Genotype", suffixes = c("_2010", "_2011"))
   
-  # Store the merged data frame in the list
   element_year_dfs[[element]] <- merged_df
 }
 
-element_df <- element_year_dfs[["Mg25"]]  # Replace "B11" with the desired element name
+element_df <- element_year_dfs[["Mg25"]]
 
 # Create scatter plot
 Mg25_scatter_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011, color = Genotype)) +
@@ -40,22 +34,22 @@ Mg25_scatter_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011, color 
   labs(x = "2010", y = "2011", color = "Genotype") +
   ggtitle("Scatter Plot of Mg25 (2010) vs Mg25 (2011) by Genotype")
 
-element_df <- element_year_dfs[["Mg25"]]  # Replace "B11" with the desired element name
+element_df <- element_year_dfs[["Mg25"]]
 
-# Create scatter plot
+
 Mg25_scatter_plot <- ggplot(element_df, aes(x = Mg25_2010, y = Mg25_2011)) +
   geom_point(size = 3) +
   labs(x = "2010", y = "2011") +
   ggtitle("Mg25") +
   theme(plot.title = element_text(hjust = 0.5))
 print(Mg25_scatter_plot)
-# Save the scatter plot to a file (e.g., "scatter_plot.png")
+# Save the scatter plot to a file
 ggsave("Mg25_scatter_plot.png", plot = Mg25_scatter_plot, width = 8, height = 6, units = "in", dpi = 300)
 
 
-element_df <- element_year_dfs[["Cd111"]]  # Replace "B11" with the desired element name
+element_df <- element_year_dfs[["Cd111"]]
 
-# Create scatter plot
+
 ggplot(element_df, aes(x = Cd111_2010, y = Cd111_2011, color = Genotype)) +
   geom_point() +
   labs(x = "2010", y = "2011", color = "Genotype") +
@@ -71,10 +65,8 @@ names(Cd111_df2) <- c("Genotype", "X2010", "X2011")
 Mg25_df1$Element <- "Mg25"
 Cd111_df2$Element <- "Cd111"
 
-# Combine the data frames
 combined_df <- rbind(Mg25_df1, Cd111_df2)
 
-# Create scatter plot with facets
 scatter_plot <- ggplot(combined_df, aes(x = X2010, y = X2011, color = Genotype)) +
   geom_point() +
   labs(x = "2010", y = "2011", color = "Genotype") +
@@ -133,16 +125,15 @@ grid.arrange(grobs = scatter_plots_grob, ncol = 4)
 
 scatter_plots <- list()
 
-# Loop through each element in the data frame
 for (element_name in names(element_year_dfs)) {
-  # Get the data frame for the current element
+  
   element_df <- element_year_dfs[[element_name]]
   
   # Extract column names for 2010 and 2011
   col_2010 <- paste0(element_name, "_2010")
   col_2011 <- paste0(element_name, "_2011")
   
-  # Create a scatter plot for the current element
+  
   plot <- ggplot(element_df, aes(x = !!sym(col_2010), y = !!sym(col_2011))) +
     geom_point(size = 1) +
     labs(x = "2010", y = "2011") +
@@ -157,9 +148,8 @@ for (element_name in names(element_year_dfs)) {
   scatter_plots[[element_name]] <- plot
 }
 
-# Convert the list of plots to a list of grobs (graphical objects)
 plots_grobs <- lapply(scatter_plots, ggplotGrob)
 
-# Arrange all plots in a matrix using grid.arrange
+
 all_elements_plot <- grid.arrange(grobs = plots_grobs, ncol = 4)
 ggsave("all_elements_plot.png", plot = all_elements_plot, width = 12, height = 10, units = "in", dpi = 300)
