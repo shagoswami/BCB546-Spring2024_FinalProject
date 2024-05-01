@@ -20,7 +20,7 @@ The final code used to generate figure 1 can be found in the `Figure1.Rmd` file.
 
 ### Figure 3
 
-The code used to generate figure 3 can be found in the Code folder. There are two code files (Final_project_code_figure3.R, and Final_project_figure3.Rmd), and each file has the descriptions to create the figure 3.
+The code used to generate figure 3 can be found in the Code folder. There are two code files (`Final_project_code_figure3.R`, and `Final_project_figure3.Rmd`), and each file has the descriptions to create the figure 3.
 
 ## Visualizations
 
@@ -32,4 +32,4 @@ The final file for figure 1 is the `Figure1.png` file. An additional figure was 
 
 ### Figure 3
 
-There are 4 figures in the Visualizations folder. Two of those (Figure3_whole_Ca.jpeg, and Figure3_whole_Zn.jpeg) were created to compare the Ca and Zn content of the entire population by different Su type. The remaining two figures (Figure3_group_Ca.jpeg, and Figure3_group_Zn.jpeg) were made by randomly sampling 7 groups to create figures similar to those in the paper. 
+There are 4 figures in the Visualizations folder. Two of those (`Figure3_whole_Ca.jpeg`, and `Figure3_whole_Zn.jpeg`) were created to compare the Ca and Zn content of the entire population by different Su type. The remaining two figures (`Figure3_group_Ca.jpeg`, and `Figure3_group_Zn.jpeg`) were made by randomly sampling 7 groups to create figures similar to those in the paper. 
