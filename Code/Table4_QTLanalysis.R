@@ -1,7 +1,4 @@
-setwd("C:/Users/kiarak/Desktop/Spring 2023/STAT 571/Assignments/571 project/Ionomics data/ScriptsandData")
-
-
-
+setwd("C:/Users/kiarak/Desktop/Final")
 #READ IN the data files and label genotypes as parental lines - QTL needs segregating pop. I don't care about the other values and will make them blank
 
 sdata <- read.table(file = "cornB73_IL14H.csv" , sep = ",", header = TRUE,stringsAsFactors = FALSE, na.strings = NA)   
@@ -132,28 +129,49 @@ geno <- calc.genoprob(geno, step=0, off.end=0.0, error.prob=1.0e-4,stepwidth = "
 
 geno_cross <- sim.geno(geno,  n.draws=32, step=0, off.end=0.0, error.prob=1.0e-4, stepwidth = "fixed", map.function="kosambi")
 
-scan.cim = cim(geno_cross, pheno.col=5, map.function="kosambi")
+scan.cim = cim(geno_cross, pheno.col=6, map.function="kosambi")
 
-scan.cim.perm = cim(geno_cross, pheno.col=3, map.function="kosambi", n.perm=1000)
+scan.cim.perm = cim(geno_cross, pheno.col=6, map.function="kosambi", n.perm=1000)
 
 summary(scan.cim.perm)
 summary(scan.cim, threshold = 0.5) #alpha = 0.05
 
-plot(scan.cim)          
+plot(scan.cim)   
+title(main="LOD scores for Chr1")
+
 #allele density plots - can change this based on element and marker
-plotPXG(geno_cross, pheno.col = 5, marker = c("PZA02698.3")) # I changed the column for Selenium and the marker based on output from previous lines of code
+plotPXG(geno_cross, pheno.col = 6, marker = c("PZA03457.1")) # I changed the column for Selenium and the marker based on output from previous lines of code
+title(main="QTL effect on selenium concentration - marker from my analysis")
+
+plotPXG(geno_cross, pheno.col = 6, marker = c("PZA02698.3")) # I changed the column for Selenium and the marker based on output from previous lines of code
+title(main="QTL effect on selenium concentration - marker from paper")
 
 
 ######### I played with the values here based on reported QTL position and marker and the results from previous lines #####
+#These are results using the map position in their paper
 qtl <- makeqtl(geno_cross, chr=c(1), pos=c(161.7),what=c("prob")) #167.8 = position of marker in my file, 161.2 = their position
 
-fitqtl <- fitqtl(geno, pheno.col=c(5), qtl= qtl, method = "hk")
+fitqtl <- fitqtl(geno, pheno.col=c(6), qtl= qtl, method = "hk")
+
+summary(fitqtl)
+
+#These are results using the map position from this script
+qtl <- makeqtl(geno_cross, chr=c(1), pos=c(162),what=c("prob")) #167.8 = position of marker in my file, 161.2 = their position
+
+fitqtl <- fitqtl(geno, pheno.col=c(6), qtl= qtl, method = "hk")
+
+summary(fitqtl)
+
+#These are the results using the map position of the marker from the thesis - 167.8
+qtl <- makeqtl(geno_cross, chr=c(1), pos=c(167.8),what=c("prob")) #167.8 = position of marker in my file, 161.2 = their position
+
+fitqtl <- fitqtl(geno, pheno.col=c(6), qtl= qtl, method = "hk")
 
 summary(fitqtl)
 
 
 #for error that figure margins are too large
-par(mar=c(0.5,0.5,0.5,0.5))
+par(mar=c(5.1,4.1,4.1,2.1))
 
 lodint(results = scan.cim, chr = 1, drop = 1.8)
 
